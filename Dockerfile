@@ -117,11 +117,18 @@ RUN python3 -m pip install --user --upgrade --break-system-packages pip
 RUN pip3 install --user --no-warn-script-location --ignore-installed --break-system-packages \
         capstone jinja2 meson poetry pythonnet thefuck tinyscript tldr vt-py \
  && pip3 install --user --no-warn-script-location --ignore-installed --break-system-packages \
-        angr capa lightgbm pandas pydl8.5 scikit-learn scikit-learn-extra weka \
+        angr capa lightgbm pandas pydl8.5 scikit-learn weka \
  && rm -f /home/user/.local/lib/python3.11/site-packages/unicorn/lib \
  && pip3 uninstall -y --break-system-packages unicorn \
  && pip3 install --user --no-warn-script-location --ignore-installed --break-system-packages unicorn \
  && pip3 install --user --break-system-packages git+https://github.com/freakboy3742/pyspamsum
+# install scikit-learn-extra
+# Clone and patch scikit-learn-extra
+RUN git clone https://github.com/scikit-learn-contrib/scikit-learn-extra.git /tmp/scikit-learn-extra \
+    && sed -i 's/from numpy.math cimport INFINITY/cdef double INFINITY = float("inf")/' \
+    /tmp/scikit-learn-extra/sklearn_extra/robust/_robust_weighted_estimator_helper.pyx \
+    && cd /tmp/scikit-learn-extra \
+    && pip3 install --user --no-warn-script-location --ignore-installed --break-system-packages .
 # install ILSpyCmd
 RUN dotnet tool install --global ilspycmd
 # install Rust (user-level
